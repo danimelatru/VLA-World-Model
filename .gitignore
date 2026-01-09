@@ -1,13 +1,17 @@
-# python
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Environments
 .venv/
-.env
+.env/
+
+# Jupyter
 .ipynb_checkpoints/
 
-# data & runs
+# Data & runs
 data/
 results/runs/
 wandb/
