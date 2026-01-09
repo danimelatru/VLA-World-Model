@@ -1,0 +1,19 @@
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
+.ipynb_checkpoints/
+
+# data & runs
+data/
+results/runs/
+wandb/
+*.ckpt
+*.pt
+*.pth
+
+# OS
+.DS_Store
