@@ -2,7 +2,7 @@
 
 > **A "System 2" approach to Embodied AI:** Decoupling reasoning (World Models) from acting (Policy) to enable interpretability and safer control.
 
-![Banner](results/figures/physics_check_1.png)
+![Banner](assets/physics_check_1.png)
 *(Fig 1: The model predicting future robot states with high precision based on physics understanding)*
 
 ## 🚀 The Concept
@@ -34,7 +34,7 @@ The system is composed of two learnable components trained on the **Robomimic (L
 
 ## 📂 Project Structure
 
-```bash
+```text
 vla_world_model/
 ├── data/               # Datasets (HDF5)
 ├── logs/               # Slurm and Training logs
@@ -101,7 +101,7 @@ sbatch scripts/run_eval.slurm
 ### 1. Physics Understanding (One-Step Lookahead)
 The World Model demonstrates a strong grasp of the environment's dynamics. As seen in the validation plots below, the **predicted state (green)** closely tracks the **ground truth (black)**, even capturing sudden changes in direction and velocity.
 
-![Physics Validation](results/figures/physics_check_1.png)
+![Physics Validation](assets/physics_check_1.png)
 *(Fig 1: One-step lookahead prediction. The model accurately predicts sharp state transitions, achieving an MSE < 1e-4).*
 
 ### 2. Long-Horizon Stability
