@@ -40,14 +40,19 @@ vla_world_model/
 ├── logs/               # Slurm and Training logs
 ├── results/            # Checkpoints and Evaluation Figures
 ├── scripts/            # Training and Evaluation scripts
+│   ├── download_data_hf.py
+│   ├── precompute_embeddings.py
 │   ├── train_world_model.py
 │   ├── train_policy.py
-│   └── eval_dreaming.py
+│   ├── eval_dreaming.py
+│   ├── run_train.slurm
+│   ├── run_policy.slurm
+│   └── run_eval.slurm
 ├── src/                # Source Code
 │   ├── datasets/       # Data Loaders
 │   └── models/         # Neural Network Architectures (PyTorch)
+├── environment.yml     # Conda environment definition
 └── README.md
-
 ```
 
 ## ⚡ Quick Start
