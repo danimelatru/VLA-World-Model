@@ -1,23 +1,44 @@
-# Python
+# --- Python & Runtime ---
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Environments
+.Python
+env/
+venv/
 .venv/
-.env/
+.anaconda/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Data & runs
+# --- Data & Large Files ---
+# Ignore the heavy datasets
 data/
-results/runs/
+*.hdf5
+*.h5
+
+# --- Training Outputs & Models ---
+# Ignore checkpoints and training results to avoid large uploads
+results/
+checkpoints/
 wandb/
-*.ckpt
 *.pt
 *.pth
+*.ckpt
 
-# OS
+# --- Logs (Slurm & Execution) ---
+# Ignore cluster log files
+logs/
+*.log
+*.out
+*.err
+
+# --- IDEs & Editors ---
+.vscode/
+.idea/
+*.swp
+
+# --- Jupyter Notebooks ---
+.ipynb_checkpoints/
+
+# --- Operating System ---
 .DS_Store
+Thumbs.db
