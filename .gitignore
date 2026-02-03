@@ -42,3 +42,8 @@ logs/
 # --- Operating System ---
 .DS_Store
 Thumbs.db
+
+# --- Python Build Artifacts ---
+*.egg-info/
+dist/
+build/
