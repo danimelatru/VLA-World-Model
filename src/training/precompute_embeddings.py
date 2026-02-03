@@ -19,7 +19,7 @@ def main():
     # Load CLIP model for text encoding
     print("Loading CLIP model...")
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
+    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32", use_safetensors=True).to(device)
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     
     # Encode text instruction once (same for all demos in Lift task)

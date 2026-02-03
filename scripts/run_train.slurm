@@ -16,14 +16,12 @@ conda activate research
 PROJECT_ROOT=/gpfs/workdir/fernandeda/vla_world_model
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 
-# Library fix
 if [ -n "$CONDA_PREFIX" ]; then
   export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 fi
 
-mkdir -p logs
-mkdir -p results/checkpoints
+mkdir -p logs results/checkpoints
 cd "$PROJECT_ROOT"
 
 echo "STARTING TRAINING"
-python -u scripts/train_world_model.py --config configs/default.yaml
+python -u -m src.training.train_world_model --config configs/default.yaml

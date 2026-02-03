@@ -35,3 +35,10 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["src*"]
+
+[project.scripts]
+vla-train = "src.training.train_world_model:main"
+vla-eval = "src.training.eval_dreaming:main"
+vla-policy = "src.training.train_policy:main"
+vla-preprocess = "src.training.precompute_embeddings:main"
+vla-download = "src.training.download_data_hf:main"

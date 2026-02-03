@@ -16,7 +16,6 @@ conda activate research
 PROJECT_ROOT=/gpfs/workdir/fernandeda/vla_world_model
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 
-# Library fix
 if [ -n "$CONDA_PREFIX" ]; then
   export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 fi
@@ -25,4 +24,4 @@ mkdir -p results/figures
 cd "$PROJECT_ROOT"
 
 echo "STARTING EVALUATION"
-python -u scripts/eval_dreaming.py --config configs/default.yaml
+python -u -m src.training.eval_dreaming --config configs/default.yaml
