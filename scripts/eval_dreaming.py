@@ -1,13 +1,9 @@
 import argparse
-import sys
 import os
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
-
-# Add project root
-sys.path.append(os.getcwd())
 
 from src.datasets.vla_dataset import VLAEmbeddingDataset
 from src.models.world_model import WorldModel

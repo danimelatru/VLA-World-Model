@@ -11,7 +11,7 @@
 
 module purge
 source ~/.bashrc
-conda activate vla-wm
+conda activate research
 
 PROJECT_ROOT=/gpfs/workdir/fernandeda/vla_world_model
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"

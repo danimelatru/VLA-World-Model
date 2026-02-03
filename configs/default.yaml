@@ -10,6 +10,7 @@ training:
 data:
   dataset_path: "./data/lift_ph_embeddings.hdf5"
   num_workers: 4
+  text_instruction: "Lift the red cube"
 
 model:
   text_dim: 512

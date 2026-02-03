@@ -11,12 +11,12 @@
 
 module purge
 source ~/.bashrc
-conda activate vla-wm
+conda activate research
 
-# --- PROJECT CONFIG ---
 PROJECT_ROOT=/gpfs/workdir/fernandeda/vla_world_model
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 
+# Library fix
 if [ -n "$CONDA_PREFIX" ]; then
   export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 fi
@@ -24,10 +24,5 @@ fi
 mkdir -p logs
 cd "$PROJECT_ROOT"
 
-# --- DEBUG ---
-echo "=========================================="
-echo "🚀 STARTING PREPROCESSING"
-echo "[DEBUG SLURM] Node: $(hostname)"
-echo "=========================================="
-
+echo "STARTING PREPROCESSING"
 python -u scripts/precompute_embeddings.py
