@@ -1,0 +1,16 @@
+training:
+  batch_size: 256
+  epochs: 50
+  lr: 0.001
+  use_scheduler: true
+  warmup_steps: 1000
+  save_dir: "./results/checkpoints"
+  # device: "cuda"
+
+data:
+  dataset_path: "./data/lift_ph_embeddings.hdf5"
+  num_workers: 4
+
+model:
+  text_dim: 512
+  hidden_dim: 512

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vla_world_model"
+version = "0.1.0"
+description = "Modular VLA: Interpretable World Models for Safe Robotic Control"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Daniel Fernández de la Mela", email = "daniel.fernandezdelamela@student-cs.fr" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "torch",
+    "torchvision",
+    "h5py",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "isort",
+    "flake8"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]

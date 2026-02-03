@@ -25,4 +25,4 @@ mkdir -p results/figures
 cd "$PROJECT_ROOT"
 
 echo "STARTING EVALUATION"
-python -u scripts/eval_dreaming.py
+python -u scripts/eval_dreaming.py --config configs/default.yaml

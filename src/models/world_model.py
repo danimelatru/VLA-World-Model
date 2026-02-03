@@ -2,7 +2,16 @@ import torch
 import torch.nn as nn
 
 class WorldModel(nn.Module):
-    def __init__(self, state_dim, action_dim, text_dim=512, hidden_dim=256):
+    """
+    A simple residual MLP World Model that predicts the next state dynamics.
+    
+    Args:
+        state_dim (int): Dimensionality of the state vector.
+        action_dim (int): Dimensionality of the action vector.
+        text_dim (int): Dimensionality of the text embedding.
+        hidden_dim (int): Hidden layer size.
+    """
+    def __init__(self, state_dim: int, action_dim: int, text_dim: int = 512, hidden_dim: int = 256):
         super().__init__()
         
         # 1. Input Fusion
@@ -29,9 +38,17 @@ class WorldModel(nn.Module):
             nn.Linear(hidden_dim, state_dim) # Output: Predicted Delta
         )
         
-    def forward(self, state, action, text):
+    def forward(self, state: torch.Tensor, action: torch.Tensor, text: torch.Tensor) -> torch.Tensor:
         """
         Predicts next state given current state, action and text command.
+        
+        Args:
+            state (torch.Tensor): Current state [B, state_dim]
+            action (torch.Tensor): Action taken [B, action_dim]
+            text (torch.Tensor): Text embedding [B, text_dim]
+            
+        Returns:
+            torch.Tensor: Predicted next state [B, state_dim]
         """
         # Concatenate inputs
         x = torch.cat([state, action, text], dim=-1)

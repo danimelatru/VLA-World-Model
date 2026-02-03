@@ -53,4 +53,4 @@ echo "STARTING TRAINING SCRIPT"
 echo "=========================================="
 
 # --- MAIN EXECUTION ---
-python -u scripts/train_world_model.py
+python -u scripts/train_world_model.py --config configs/default.yaml
