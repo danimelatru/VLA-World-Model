@@ -3,33 +3,44 @@ from huggingface_hub import hf_hub_download
 import shutil
 
 # --- CONFIGURATION ---
+# --- CONFIGURATION ---
 REPO_ID = "amandlek/robomimic"
-FILENAME = "v1.5/lift/ph/low_dim_v15.hdf5" # Official Low-Dim Dataset (Lift task)
+TASKS = {
+    "lift": "v1.5/lift/ph/low_dim_v15.hdf5",
+    "can": "v1.5/can/ph/low_dim_v15.hdf5",
+    "square": "v1.5/square/ph/low_dim_v15.hdf5"
+}
 LOCAL_DIR = "./data"
-FINAL_FILENAME = "lift_ph.hdf5"
+
 def main():
-    print(f"Starting download from Hugging Face: {REPO_ID}")
+    print(f"Starting multi-task download from: {REPO_ID}")
     
     os.makedirs(LOCAL_DIR, exist_ok=True)
     
     try:
-        # 1. Download the file using the official Hub API
-        # This handles caching and secure connection automatically
-        downloaded_path = hf_hub_download(
-            repo_id=REPO_ID,
-            filename=FILENAME,
-            repo_type="dataset",
-            cache_dir=os.path.join(LOCAL_DIR, "cache") # Temporary cache
-        )
+        for task_name, filename in TASKS.items():
+            print(f"⬇️ Downloading {task_name}...")
+            
+            # 1. Download
+            downloaded_path = hf_hub_download(
+                repo_id=REPO_ID,
+                filename=filename,
+                repo_type="dataset",
+                cache_dir=os.path.join(LOCAL_DIR, "cache")
+            )
+            
+            # 2. Rename/Move
+            final_name = f"{task_name}_ph.hdf5"
+            destination = os.path.join(LOCAL_DIR, final_name)
+            shutil.copy(downloaded_path, destination)
+            print(f"✅ Saved: {destination}")
+            
+        print("\nAll datasets ready for preprocessing!")
+
         
-        print(f"Downloaded to cache: {downloaded_path}")
         
-        # 2. Move and Rename to your data folder
-        destination = os.path.join(LOCAL_DIR, FINAL_FILENAME)
-        shutil.copy(downloaded_path, destination)
-        
-        print(f"File saved and renamed to: {destination}")
-        print("You are ready to run preprocessing!")
+        # Optional: Clean up cache if space is tight
+        # shutil.rmtree(os.path.join(LOCAL_DIR, "cache"))
         
         # Optional: Clean up cache if space is tight
         # shutil.rmtree(os.path.join(LOCAL_DIR, "cache"))

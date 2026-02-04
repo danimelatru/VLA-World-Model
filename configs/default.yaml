@@ -8,9 +8,9 @@ training:
   # device: "cuda"
 
 data:
-  dataset_path: "./data/lift_ph_embeddings.hdf5"
+  dataset_path: "./data/multi_task_embeddings.hdf5"
   num_workers: 4
-  text_instruction: "Lift the red cube"
+  text_instruction: "Lift the red cube" # Default for inference, training uses dataset
 
 model:
   text_dim: 512
