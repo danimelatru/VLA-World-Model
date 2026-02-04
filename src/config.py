@@ -16,6 +16,7 @@ class TrainingConfig:
 class DataConfig:
     dataset_path: str = "./data/lift_ph_embeddings.hdf5"
     num_workers: int = 4
+    text_instruction: str = "Lift the red cube"
 
 @dataclass
 class ModelConfig:
