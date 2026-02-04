@@ -18,10 +18,14 @@ class VLAEmbeddingDataset(Dataset):
         with h5py.File(dataset_path, "r") as f:
             demo_keys = list(f["data"].keys())
             
-            # Check if text embeddings exist
+            # Check if text embeddings exist (support both old singular and new plural)
             first_key = demo_keys[0]
-            if "text_embedding" in f[f"data/{first_key}"]:
-                self.has_text_embedding = True
+            if "text_embeddings" in f[f"data/{first_key}"]:
+                self.text_mode = "multiple"
+            elif "text_embedding" in f[f"data/{first_key}"]:
+                self.text_mode = "single"
+            else:
+                self.text_mode = "none"
             
             for key in demo_keys:
                 num_samples = f[f"data/{key}/obs_embedding"].shape[0]
@@ -29,7 +33,7 @@ class VLAEmbeddingDataset(Dataset):
                     for i in range(num_samples - 1):
                         self.demos.append((key, i))
                         
-        print(f"Dataset loaded. Total transitions: {len(self.demos)}, Text embeddings: {self.has_text_embedding}")
+        print(f"Dataset loaded. transitions: {len(self.demos)}, text_mode: {self.text_mode}")
 
     def __len__(self):
         return len(self.demos)
@@ -42,8 +46,13 @@ class VLAEmbeddingDataset(Dataset):
             a_t = f[f"data/{demo_key}/actions"][t]
             z_next = f[f"data/{demo_key}/obs_embedding"][t+1]
             
-            # Load real text embedding if available
-            if self.has_text_embedding:
+            # Load text embedding
+            if self.text_mode == "multiple":
+                # Data Augmentation: Pick one random synonym
+                all_embs = f[f"data/{demo_key}/text_embeddings"][:] # (N, 512)
+                idx = np.random.randint(len(all_embs))
+                text_emb = all_embs[idx]
+            elif self.text_mode == "single":
                 text_emb = f[f"data/{demo_key}/text_embedding"][:]
             else:
                 text_emb = np.zeros(512, dtype=np.float32)

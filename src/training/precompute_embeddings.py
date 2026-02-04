@@ -8,7 +8,15 @@ from transformers import CLIPProcessor, CLIPModel
 # --- CONFIGURATION ---
 DATASET_PATH = "./data/lift_ph.hdf5"
 OUTPUT_PATH = "./data/lift_ph_embeddings.hdf5"
-TEXT_INSTRUCTION = "Lift the red cube"
+# Data Augmentation: Multiple synonyms for the same task
+TEXT_INSTRUCTIONS = [
+    "Lift the red cube",
+    "Pick up the red cube",
+    "Grasp the red object",
+    "Raise the red block",
+    "Lift the object vertically",
+    "Elevate the red cube"
+]
 
 def main():
     print(f"Processing Low-Dim Data from: {DATASET_PATH}")
@@ -22,14 +30,16 @@ def main():
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32", use_safetensors=True).to(device)
     clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
     
-    # Encode text instruction once (same for all demos in Lift task)
+    # Encode ALL text instructions
+    print(f"Encoding {len(TEXT_INSTRUCTIONS)} text variants...")
     with torch.no_grad():
-        text_inputs = clip_processor(text=[TEXT_INSTRUCTION], return_tensors="pt", padding=True)
+        text_inputs = clip_processor(text=TEXT_INSTRUCTIONS, return_tensors="pt", padding=True)
         text_inputs = {k: v.to(device) for k, v in text_inputs.items()}
-        text_embedding = clip_model.get_text_features(**text_inputs)
-        text_embedding = text_embedding.cpu().numpy().squeeze()  # (512,)
+        text_features = clip_model.get_text_features(**text_inputs)
+        # Shape: (N_prompts, 512)
+        text_embeddings = text_features.cpu().numpy()
     
-    print(f"Text embedding shape: {text_embedding.shape}")
+    print(f"Text embeddings shape: {text_embeddings.shape}")
 
     f_in = h5py.File(DATASET_PATH, "r")
     demos = list(f_in["data"].keys())
@@ -56,7 +66,8 @@ def main():
         demo_grp = grp.create_group(demo_key)
         demo_grp.create_dataset("obs_embedding", data=embedding)
         demo_grp.create_dataset("actions", data=actions)
-        demo_grp.create_dataset("text_embedding", data=text_embedding)  # Same for all timesteps
+        # Save ALL variants so datasets/vla_dataset.py can sample randomly
+        demo_grp.create_dataset("text_embeddings", data=text_embeddings)
         
         if "num_samples" in f_in[f"data/{demo_key}"].attrs:
             demo_grp.attrs["num_samples"] = f_in[f"data/{demo_key}"].attrs["num_samples"]
