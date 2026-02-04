@@ -15,3 +15,9 @@ data:
 model:
   text_dim: 512
   hidden_dim: 512
+
+vla:
+  model_name: "meta-llama/Meta-Llama-3-8B-Instruct"
+  load_in_4bit: false
+  use_lora: true
+  lora_rank: 32

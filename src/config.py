@@ -26,10 +26,18 @@ class ModelConfig:
     action_dim: Optional[int] = None # Inferred from data
 
 @dataclass
+class VLAConfig:
+    model_name: str = "meta-llama/Meta-Llama-3-8B-Instruct"
+    load_in_4bit: bool = False
+    use_lora: bool = True
+    lora_rank: int = 32
+
+@dataclass
 class Config:
     training: TrainingConfig
     data: DataConfig
     model: ModelConfig
+    vla: VLAConfig
 
     @classmethod
     def load(cls, path: str) -> "Config":
@@ -39,5 +47,6 @@ class Config:
         return cls(
             training=TrainingConfig(**raw.get("training", {})),
             data=DataConfig(**raw.get("data", {})),
-            model=ModelConfig(**raw.get("model", {}))
+            model=ModelConfig(**raw.get("model", {})),
+            vla=VLAConfig(**raw.get("vla", {}))
         )

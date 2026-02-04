@@ -16,3 +16,6 @@ tensorboard
 timm
 transformers
 accelerate
+peft
+bitsandbytes # Optional but good to have
+scipy

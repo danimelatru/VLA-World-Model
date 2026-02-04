@@ -1,129 +1,129 @@
-# 🧠 Modular VLA: Interpretable World Models for Safe Robotic Control
+# 🤖 Modular VLA: World Models for Safe Robotic Control
 
-> **A "System 2" approach to Embodied AI:** Decoupling reasoning (World Models) from acting (Policy) to enable interpretability and safer control.
+**A Vision-Language-Action (VLA) World Model capable of learning multi-task physics dynamics and training control policies entirely in "dreams" (hallucinated rollouts).**
 
-![Banner](assets/physics_check_1.png)
-*(Fig 1: The model predicting future robot states with high precision based on physics understanding)*
+![Architecture Overview](assets/rollout_0.png)
+*(Example of a fully hallucinated policy rollout: The robot "dreams" a smooth lifting trajectory without interacting with the real world)*
 
-## 🚀 The Concept
-Standard Vision-Language-Action (VLA) models like RT-2 or OpenVLA are "black boxes": they map pixels directly to actions. If they fail, we don't know why.
+## 🚀 Overview
 
-**This project proposes a Modular Architecture:**
-1.  **Frozen Perception:** Uses state-of-the-art encoders (SigLIP/CLIP) to process visual data.
-2.  **Trainable World Model:** An explicit neural physics engine that learns $P(s_{t+1} | s_t, a_t)$. It allows the robot to "imagine" the outcome of an action before executing it.
-3.  **Policy Network:** A control module that acts based on the World Model's understanding.
+This project implements a modular **World Model** approach to robotics:
+1.  **World Model**: Learns to simulate the physics of the world and the effect of actions, conditioned on **Language Instructions**.
+2.  **Policy Network**: Learns to control the robot to achieve language goals, training purely by interacting with the World Model's "imagination".
 
-**Why this matters for Industry?**
-* **Safety:** We can audit the robot's "imagination" to detect hallucinations before they cause accidents.
-* **Data Efficiency:** World Models learn physics from offline data, reducing the need for dangerous real-world interaction.
-
-## 🛠️ Architecture
-
-The system is composed of two learnable components trained on the **Robomimic (Lift-PH)** dataset:
-
-### 1. The World Model (The Brain)
-* **Input:** Current State Embedding + Action + Language Instruction.
-* **Output:** Predicted Next State Embedding.
-* **Architecture:** Residual MLP with LayerNorm and GELU activations.
-* **Performance:** Achieved **MSE < 1e-4** on one-step lookahead dynamics.
-
-### 2. The Policy (The Body)
-* **Input:** State Embedding + Language Instruction.
-* **Output:** 7-DoF Robot Action (End-effector pose + Gripper).
-* **Training:** Behavior Cloning (Supervised Learning) from expert demonstrations.
-
-## 📂 Project Structure
-
-```text
-vla_world_model/
-├── data/               # Datasets (HDF5)
-├── logs/               # Slurm and Training logs
-├── results/            # Checkpoints and Evaluation Figures
-├── scripts/            # Training and Evaluation scripts
-│   ├── download_data_hf.py
-│   ├── precompute_embeddings.py
-│   ├── train_world_model.py
-│   ├── train_policy.py
-│   ├── eval_dreaming.py
-│   ├── run_train.slurm
-│   ├── run_policy.slurm
-│   └── run_eval.slurm
-├── src/                # Source Code
-│   ├── datasets/       # Data Loaders
-│   └── models/         # Neural Network Architectures (PyTorch)
-├── environment.yml     # Conda environment definition
-└── README.md
-```
-
-## ⚡ Quick Start
-
-### 1. Environment Setup
-```bash
-conda create -n vla-wm python=3.10
-conda activate vla-wm
-pip install torch torchvision robomimic h5py huggingface_hub matplotlib
-```
-
-### 2. Data Preparation
-We use the official **Robomimic Low-Dim** dataset (Lift task) for rapid prototyping.
-
-```bash
-# 1. Download dataset from Hugging Face
-python scripts/download_data_hf.py
-
-# 2. Process raw data into embeddings (ready for training)
-python scripts/precompute_embeddings.py
-```
-
-### 3. Training
-The system requires training two components sequentially: first the World Model (Physics), then the Policy (Control).
-
-```bash
-# Option A: Submit to Slurm (HPC Cluster)
-sbatch scripts/run_train.slurm   # Trains World Model
-sbatch scripts/run_policy.slurm  # Trains Policy
-
-# Option B: Run locally
-python scripts/train_world_model.py
-python scripts/train_policy.py
-```
-
-### 4. Evaluation ("Dreaming")
-Test the model's ability to simulate the future. This script runs a **One-Step Lookahead** validation to verify physics understanding.
-
-```bash
-sbatch scripts/run_eval.slurm
-# Output figures will be saved to: results/figures/
-```
-
-## 📊 Results & Analysis
-
-### 1. Physics Understanding (One-Step Lookahead)
-The World Model demonstrates a strong grasp of the environment's dynamics. As seen in the validation plots below, the **predicted state (green)** closely tracks the **ground truth (black)**, even capturing sudden changes in direction and velocity.
-
-![Physics Validation](assets/physics_check_1.png)
-*(Fig 1: One-step lookahead prediction. The model accurately predicts sharp state transitions, achieving an MSE < 1e-4).*
-
-### 2. Long-Horizon Stability
-While the model excels at local dynamics, open-loop "dreaming" over long horizons (50+ steps) exhibits drift (separation between prediction and reality). This is a known phenomenon in simple autoregressive MLP models without latent overshooting or state correction.
-
-| Metric | Value | Interpretation |
-| :--- | :--- | :--- |
-| **Dynamics Loss (MSE)** | `9e-6` | High precision in immediate physics prediction. |
-| **Policy Loss (MSE)** | `0.023` | Effective imitation of expert actions. |
-
-## 🔮 Future Work & Scaling
-
-This project serves as a foundational MVP. To scale this into a production-grade system, the following steps are proposed:
-
-1.  **Vision-Based Inputs:** Replace Low-Dim states with **SigLIP embeddings** extracted from raw pixels (the pipeline is already scaffolded in `precompute_embeddings.py`).
-2.  **Transformer Backbone:** Replace the MLP World Model with a **Transformer (GPT-style)** or a **Diffusion Model** to handle longer context windows and reduce long-term drift.
-3.  **Closed-Loop Simulation:** Integrate with **MuJoCo** to measure actual task Success Rates (Lift Success %) rather than just trajectory error.
+### Key Features
+*   **Multi-Task Learning**: Handles multiple Robomimic tasks (`Lift`, `Can`, `Square`) simultaneously with a single model.
+*   **Language Conditioning**: Uses **CLIP Embeddings** to guide the robot (e.g., "Lift the red cube" vs "Push the square nut").
+*   **Robustness**: Features **Text Augmentation** (synonyms) and **Validation Splitting** to ensure generalization.
+*   **Dream Training**: The Policy is trained via Behavior Cloning / Rollouts inside the learned World Model, enabling safe, zero-risk learning.
 
 ---
 
-## 👨‍💻 Author
+## 🛠️ Installation
 
-**Daniel Fernández de la Mela**
-MSc in AI Student @ CentraleSupélec
-[LinkedIn](https://www.linkedin.com/in/danielfernandezdelamelatrujillano) | [GitHub](https://github.com/danimelatru)
+### Prerequisites
+*   Python 3.10+
+*   CUDA-enabled GPU (Recommended)
+*   Anaconda / Miniconda
+
+### Setup
+
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/yourusername/vla-world-model.git
+    cd vla-world-model
+    ```
+
+2.  **Create Environment**
+    ```bash
+    conda create -n vla_env python=3.10 -y
+    conda activate vla_env
+    ```
+
+3.  **Install Dependencies**
+    ```bash
+    pip install -e .
+    ```
+
+---
+
+## 🏃 Usage
+
+We provide CLI commands for every stage of the pipeline.
+
+### 1. Download Data
+Fetches `Lift`, `Can`, and `Square` datasets from Hugging Face (Robomimic).
+```bash
+vla-download
+```
+
+### 2. Preprocess & Embed
+Generates CLIP text embeddings and unifies all tasks into a single HDF5 dataset with consistent dimensions.
+```bash
+vla-preprocess
+```
+
+### 3. Train World Model
+Trains the physics simulator on the multi-task dataset.
+```bash
+vla-train
+```
+*   **Outputs**: `results/checkpoints/wm_best.pth` (Best Validation Loss model)
+
+### 4. Train Policy
+Trains the control policy (brain) to follow text instructions.
+```bash
+vla-policy
+```
+*   **Outputs**: `results/checkpoints/policy_best.pth`
+
+### 5. Evaluate (Dream Rollout)
+The ultimate test: The policy controls the "dream" world model for 40 steps.
+```bash
+vla-rollout
+```
+*   **Outputs**: Plots in `results/dream_rollouts/`. **Smooth curves = Success!**
+
+---
+
+## 🧠 Architecture
+
+### World Model (`src/models/world_model.py`)
+*   **Input**: State ($s_t$), Action ($a_t$), Text Embedding ($e_{text}$)
+*   **Output**: Next State ($s_{t+1}$)
+*   **Structure**: MLP (Multi-Layer Perceptron) with Residual connections.
+
+### Policy (`src/models/policy.py`)
+*   **Input**: State ($s_t$), Text Embedding ($e_{text}$)
+*   **Output**: Action ($a_t$)
+*   **Structure**: MLP with LayerNorm and Dropout for robust behavior cloning.
+
+---
+
+## 📊 Results
+
+### Training Convergence
+*   **World Model**: Converges to Val Loss ~0.0029 across 3 tasks.
+*   **Policy**: Converges to Loss ~0.04.
+
+### Qualitative Results
+Check `assets/` for generated GIFs and Plots showing the robot's hallucinated trajectories matching physically plausible movements.
+
+---
+
+## 📂 Project Structure
+
+```
+.
+├── configs/            # YAML configuration files
+├── scripts/            # SLURM scripts for cluster execution
+│   └── run_*.slurm
+├── src/
+│   ├── training/       # Training & Eval scripts (The "Brain")
+│   ├── models/         # Neural Network Architectures
+│   └── datasets/       # Data Loading & Processing
+└── pyproject.toml      # Project metadata & CLI entry points
+```
+
+## 🤝 Contributing
+Open to PRs for new tasks (e.g., Open X-Embodiment integration) or Transformer backbones!
