@@ -1,5 +1,5 @@
 training:
-  batch_size: 256
+  batch_size: 128 # 128 with Gradient Checkpointing should be safe on 32GB VRAM
   epochs: 20
   lr: 0.001
   use_scheduler: true

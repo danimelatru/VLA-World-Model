@@ -77,7 +77,8 @@ def main():
     for epoch in range(epochs):
         vla.train()
         total_loss = 0
-        pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}")
+        # Reduce log spam: update only once every 60 seconds
+        pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", mininterval=60.0)
         
         for batch in pbar:
             state = batch["state"].to(device)
@@ -102,7 +103,7 @@ def main():
             text_batch = batch["raw_text"] # We will add this to dataset
             
             pred_action = vla(state, text_batch)
-            loss = criterion(pred_action, target_action)
+            loss = criterion(pred_action.float(), target_action.float())
             
             optimizer.zero_grad()
             loss.backward()

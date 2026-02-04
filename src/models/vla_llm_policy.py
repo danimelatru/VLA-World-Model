@@ -25,6 +25,10 @@ class VLAPolicy(nn.Module):
             load_in_4bit=load_in_4bit
         )
         
+        
+        # Optimization: Disable Checkpointing for speed if VRAM allows (V100 32GB is plenty for Batch 64)
+        # self.llm.gradient_checkpointing_enable()
+        
         # 2. Apply LoRA (Make it trainable efficiently)
         peft_config = LoraConfig(
             task_type=TaskType.CAUSAL_LM, 
@@ -62,6 +66,8 @@ class VLAPolicy(nn.Module):
         
         # 1. Embed Robot State
         # (Batch, 1, Hidden) -> represents the "Visual/State" token
+        # Cast state to model dtype (bfloat16/float16) to match projector weights
+        state = state.to(self.state_projector[0].weight.dtype)
         state_emb = self.state_projector(state).unsqueeze(1) 
         
         # 2. Tokenize Text
@@ -70,6 +76,7 @@ class VLAPolicy(nn.Module):
             return_tensors="pt", 
             padding=True, 
             truncation=True,
+            max_length=32, # Optimization: Instructions are short, don't waste compute
             add_special_tokens=True
         ).to(self.llm.device)
         
@@ -84,7 +91,7 @@ class VLAPolicy(nn.Module):
         # Update Attention Mask for the new state token
         # Add column of 1s to the left
         batch_size = state.shape[0]
-        ones = torch.ones((batch_size, 1), device=self.llm.device)
+        ones = torch.ones((batch_size, 1), device=self.llm.device, dtype=torch.long)
         combined_mask = torch.cat([ones, inputs.attention_mask], dim=1)
         
         # 5. Pass through LLM
