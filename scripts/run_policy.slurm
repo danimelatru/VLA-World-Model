@@ -24,4 +24,4 @@ mkdir -p logs
 cd "$PROJECT_ROOT"
 
 echo "STARTING POLICY TRAINING"
-python -u -m src.training.train_policy
+python -u -m src.training.train_policy --config configs/default.yaml

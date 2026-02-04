@@ -50,7 +50,7 @@ def main():
     checkpoint_path = f"{cfg.training.save_dir}/wm_epoch_{cfg.training.epochs}.pth"
     if os.path.exists(checkpoint_path):
         try:
-            wm.load_state_dict(torch.load(checkpoint_path, map_location=device))
+            wm.load_state_dict(torch.load(checkpoint_path, map_location=device, weights_only=True))
             print(f"✅ Loaded checkpoint: {checkpoint_path}")
         except RuntimeError as e:
             print(f"⚠️ Warning: Could not load checkpoint due to shape mismatch (Expected if you changed model size): {e}")
